@@ -21,18 +21,18 @@ RUN apt-get update && apt-get upgrade -y && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/local/src
-RUN git clone --depth 1 --branch "$${LIBNICE_REF}" https://gitlab.freedesktop.org/libnice/libnice.git libnice && \
+RUN git clone --depth 1 --branch "${LIBNICE_REF}" https://gitlab.freedesktop.org/libnice/libnice.git libnice && \
     meson setup libnice/build libnice --prefix=/usr/local && \
     ninja -C libnice/build -j 2 && ninja -C libnice/build install && ldconfig
 
 # libSRTP with OpenSSL support supplies AES-GCM cipher profiles.
-RUN git clone --depth 1 --branch "$${LIBSRTP_REF}" https://github.com/cisco/libsrtp.git libsrtp && \
+RUN git clone --depth 1 --branch "${LIBSRTP_REF}" https://github.com/cisco/libsrtp.git libsrtp && \
     cd libsrtp && ./configure --prefix=/usr/local --enable-openssl && \
     make -j2 shared_library && make install && ldconfig
 
 # 5.0-stable receives security fixes; Janus compatibility MUST be tested in isolation.
 # Not a fully reproducible pin: exact commit is recorded in image build metadata.
-RUN git clone --depth 1 --branch "$${LWS_REF}" https://github.com/warmcat/libwebsockets.git libwebsockets && \
+RUN git clone --depth 1 --branch "${LWS_REF}" https://github.com/warmcat/libwebsockets.git libwebsockets && \
     mkdir -p /opt/janus-build-info && \
     git -C libwebsockets rev-parse HEAD > /opt/janus-build-info/libwebsockets.commit && \
     cmake -S libwebsockets -B libwebsockets/build \
@@ -50,7 +50,7 @@ RUN git clone --depth 1 https://github.com/sctplab/usrsctp.git usrsctp && \
     ./configure --prefix=/usr/local --disable-programs --disable-inet --disable-inet6 && \
     make -j2 && make install && ldconfig
 
-RUN git clone --depth 1 --branch "$${JANUS_REF}" https://github.com/meetecho/janus-gateway.git janus-gateway && \
+RUN git clone --depth 1 --branch "${JANUS_REF}" https://github.com/meetecho/janus-gateway.git janus-gateway && \
     git -C janus-gateway rev-parse HEAD > /opt/janus-build-info/janus.commit && \
     cd janus-gateway && sh autogen.sh && \
     ./configure --prefix=/opt/janus --enable-post-processing && \
