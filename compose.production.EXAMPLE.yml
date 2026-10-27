@@ -1,0 +1,24 @@
+# NOT AN AUTOMATIC DEPLOYMENT. Use only after staged tests and reviewed cutover.
+# Requires current config copied FROM THE BUILT IMAGE, not older/other images.
+services:
+  janus:
+    container_name: janus-gateway
+    image: local/janus-nextcloud:1.4.3-secure
+    network_mode: host
+    restart: unless-stopped
+    init: true
+    user: "10001:10001"
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,noexec,size=64m
+    # Optional only after source files are generated and tested:
+    # volumes:
+    #   - ./runtime-config:/opt/janus/etc/janus:ro
+    stop_grace_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
